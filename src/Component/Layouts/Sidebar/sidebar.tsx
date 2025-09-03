@@ -17,10 +17,17 @@ interface MenuItem {
   icon: React.ReactNode;
   hasSubmenu?: boolean;
   isExpanded?: boolean;
+  route?: string;
 }
+
+interface SidebarProps {
+  activeMenuItem: string;
+  onMenuClick: (menuId: string, route?: string) => void;
+}
+
 import logo from "../../../assets/logo-cbn.png";
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ activeMenuItem, onMenuClick }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const menuItems: MenuItem[] = [
@@ -28,11 +35,13 @@ const Sidebar: React.FC = () => {
       id: "dashboard",
       label: "Dashboard",
       icon: <Home size={20} />,
+      route: "dashboard",
     },
     {
       id: "job-desk",
       label: "Job Desk",
       icon: <Briefcase size={20} />,
+      route: "job-desk",
     },
     {
       id: "employee",
@@ -81,7 +90,7 @@ const Sidebar: React.FC = () => {
       toggleExpanded(item.id);
     } else {
       // Handle navigation for items without submenu
-      console.log(`Navigating to ${item.label}`);
+      onMenuClick(item.id, item.route);
     }
   };
 
@@ -107,7 +116,7 @@ const Sidebar: React.FC = () => {
                   w-full flex items-center justify-between px-4 py-3 text-left
                   text-gray-700 hover:bg-gray-100 hover:text-gray-900
                   transition-colors duration-150 ease-in-out
-                  ${item.id === "dashboard" ? "bg-gray-100 text-gray-900" : ""}
+                  ${activeMenuItem === item.id ? "bg-gray-100 text-gray-900" : ""}
                 `}
               >
                 <div className="flex items-center space-x-3">
@@ -129,12 +138,18 @@ const Sidebar: React.FC = () => {
               {/* Submenu (placeholder) */}
               {item.hasSubmenu && expandedItems.has(item.id) && (
                 <div className="ml-8 py-2 space-y-1">
-                  <div className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer rounded">
-                    Sub Item 1
-                  </div>
-                  <div className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer rounded">
-                    Sub Item 2
-                  </div>
+                  <button 
+                    onClick={() => onMenuClick(`${item.id}-list`, `${item.id}/list`)}
+                    className="w-full px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer rounded text-left"
+                  >
+                    {item.label} List
+                  </button>
+                  <button 
+                    onClick={() => onMenuClick(`${item.id}-add`, `${item.id}/add`)}
+                    className="w-full px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer rounded text-left"
+                  >
+                    Add {item.label}
+                  </button>
                 </div>
               )}
             </li>
